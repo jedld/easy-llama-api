@@ -56,11 +56,12 @@ get '/chat' do
         end
       when 'message'
         query = build_prompt(data['context'], data['message'])
+        n_predict = (data['n_predict'] || 128).to_i
         logger.info(query)
 
         # Move long-running task to a separate thread
         Thread.new do
-          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads)
+          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, , n_predict: n_predict)
           logger.info("response: [#{output}]...")
           matches = output.scan(/### Response:\n(.*?)(?=###|\z)/m)
           message =  matches[0]
