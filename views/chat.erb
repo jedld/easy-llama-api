@@ -7,10 +7,10 @@
     <!-- JS, Popper.js, and jQuery -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.0/dist/js/bootstrap.bundle.min.js"></script>
-    <title>Llama 2</title>
+    <title>Llama 2 Private</title>
   </head>
   <body>
-    <h1>LLama 2 Private GPT Browser</h1>
+    <h1>LLama 2 Private LLM Frontend</h1>
     <div class="container">
         <div class="row mt-5">
             <div class="col-md-6 offset-md-3">
@@ -33,7 +33,18 @@
         </div>
     </div>
     <script>
-      var ws = new WebSocket('ws://localhost:3100/chat');
+      var ws = new WebSocket('ws://<%= host_name %>:3100/chat');
+      let timerId = 0; 
+
+      function keepAlive(timeout = 5000) { 
+          if (ws.readyState == ws.OPEN) {  
+              ws.send(JSON.stringify({type: 'ping', message: "ping"} ));  
+          }  
+          setTimeout(keepAlive, timeout);  
+      }
+
+      keepAlive()
+
       ws.onopen = function(event) {
         document.getElementById('spinner').classList.add('d-none');
       };
@@ -63,7 +74,7 @@
       function generate() {
         var message = document.getElementById('chat_history').value;
         var context = document.getElementById('context').value;
-        ws.send(JSON.stringify({type: 'message', user: 'username', message: message, context: context}));
+        ws.send(JSON.stringify({type: 'generate', user: 'username', message: message, context: context}));
         document.getElementById('message').value = '';
         document.getElementById('spinner').classList.remove('d-none');
       }
