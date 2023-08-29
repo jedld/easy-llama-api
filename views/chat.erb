@@ -33,7 +33,7 @@
         </div>
     </div>
     <script>
-      var ws = new WebSocket('ws://<%= host_name %>:3100/chat');
+      var ws = new WebSocket('ws://<%= host_name %>:<%= port %>/chat');
       let timerId = 0; 
 
       function keepAlive(timeout = 5000) { 

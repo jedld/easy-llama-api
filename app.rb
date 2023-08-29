@@ -26,7 +26,7 @@ set :n_threads, (ENV['N_THREADS'] || 8).to_i
 
 get '/' do
   @server_name = ENV['SERVER_NAME'] || 'localhost'
-  erb :chat, { :locals => { :host_name => @server_name } }
+  erb :chat, { :locals => { :host_name => @server_name, :port => settings.port } }
 end
 
 get '/chat' do
@@ -79,6 +79,6 @@ get '/chat' do
     ws.rack_response
   else
     
-    erb :chat, { :locals => { :host_name => @server_name } }
+    erb :chat, { :locals => { :host_name => @server_name, :port => settings.port } }
   end
 end
