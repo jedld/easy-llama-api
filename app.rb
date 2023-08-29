@@ -22,7 +22,7 @@ def build_prompt(instruction, input)
 end
 
 set :sockets, []
-set :n_threads, ENV['N_THREADS'] || 8
+set :n_threads, (ENV['N_THREADS'] || 8).to_i
 
 get '/' do
   @server_name = ENV['SERVER_NAME'] || 'localhost'
