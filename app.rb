@@ -47,9 +47,10 @@ get '/chat' do
         ws.send({type: 'ping', message: 'pong'}.to_json)
       when 'generate'
         query = data['message']
+        n_predict = (data['n_predict'] || 128).to_i
         logger.info(query)
         Thread.new do
-          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads)
+          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, n_predict: n_predict)
           logger.info("response: [#{output}]...")
           ws.send({type: 'message', user: data['user'], message: output}.to_json)
         end

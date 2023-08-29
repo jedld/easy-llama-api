@@ -18,13 +18,14 @@
                     <div class="card-body">
                         <textarea id="context" style="height: 50px; overflow: auto; border: 1px solid #ccc; padding: 10px;"></textarea><br>
                         <textarea id="chat_history" hidden></textarea><br>
+                        <input type="text" id="message" class="form-control mt-3"/>
+                        <input type="text" id="tokens" class="form-control mt-1">128</input>
                         <div id="chat" style="height: 300px; overflow: auto; border: 1px solid #ccc; padding: 10px;"></div>
                         <div id="spinner" class="d-none text-center">
                             <div class="spinner-border text-primary" role="status">
                                 <span class="sr-only">Loading...</span>
                             </div>
                         </div>
-                        <input type="text" id="message" class="form-control mt-3">
                         <button class="btn btn-primary mt-2" onclick="send()">Send</button>
                         <button class="btn btn-primary mt-2" onclick="generate()">Generate</button>
                     </div>
@@ -54,8 +55,9 @@
           case 'message':
             formatted_message = marked.parse(data.message);
             document.getElementById('spinner').classList.add('d-none');
-            document.getElementById('chat').innerHTML += `<p><strong>${formatted_message}</p>`;
+            document.getElementById('chat').innerHTML = `<p><strong>${formatted_message}</p>`;
             document.getElementById('chat_history').innerHTML += data.message;
+            document.getElementById('message').value = '';
             break;
           case 'info':
           case 'error':
@@ -67,15 +69,15 @@
       function send() {
         var message = document.getElementById('message').value;
         var context = document.getElementById('context').value;
-        ws.send(JSON.stringify({type: 'message', user: 'username', message: message, context: context}));
-        document.getElementById('message').value = '';
+        var n_tokens = document.getElementById('tokens').value;
+        ws.send(JSON.stringify({type: 'message', user: 'username', message: message, n_predict: n_tokens, context: context}));
+
         document.getElementById('spinner').classList.remove('d-none');
       }
       function generate() {
         var message = document.getElementById('chat_history').value;
         var context = document.getElementById('context').value;
-        ws.send(JSON.stringify({type: 'generate', user: 'username', message: message, context: context}));
-        document.getElementById('message').value = '';
+        ws.send(JSON.stringify({type: 'generate', user: 'username', message: message, n_predict: n_tokens, context: context}));
         document.getElementById('spinner').classList.remove('d-none');
       }
     </script>
