@@ -61,7 +61,7 @@ get '/chat' do
 
         # Move long-running task to a separate thread
         Thread.new do
-          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, , n_predict: n_predict)
+          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, n_predict: n_predict)
           logger.info("response: [#{output}]...")
           matches = output.scan(/### Response:\n(.*?)(?=###|\z)/m)
           message =  matches[0]
