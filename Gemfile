@@ -5,3 +5,4 @@ gem 'llama_cpp', git: "https://github.com/jedld/llama_cpp.rb.git"
 gem 'sinatra'
 gem 'thin'
 gem 'faye-websocket'
+gem 'solargraph', group: :development

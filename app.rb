@@ -17,7 +17,7 @@ model = LLaMACpp::Model.new(model_path: MODEL, params: params)
 context = LLaMACpp::Context.new(model: model)
 
 def build_prompt(instruction, input)
-  "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.\n" +
+  "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request. You may use markdown format and express your response\n" +
   "### Instruction:\n" + instruction + "\n### Input:\n" + input + "\n### Response:\n"
 end
 
@@ -50,7 +50,9 @@ get '/chat' do
         n_predict = (data['n_predict'] || 128).to_i
         logger.info(query)
         Thread.new do
-          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, n_predict: n_predict)
+          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, n_predict: n_predict, streaming_callback: ->(token) {
+            ws.send({type: 'stream', user: data['user'], message: token}.to_json)
+          })
           logger.info("response: [#{output}]...")
           ws.send({type: 'message', user: data['user'], message: output}.to_json)
         end
@@ -61,7 +63,9 @@ get '/chat' do
 
         # Move long-running task to a separate thread
         Thread.new do
-          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, n_predict: n_predict)
+          output = LLaMACpp.generate(context, query, n_threads: settings.n_threads, n_predict: n_predict, streaming_callback: ->(token) {
+            ws.send({type: 'stream', user: data['user'], message: token}.to_json)
+          })
           logger.info("response: [#{output}]...")
           matches = output.scan(/### Response:\n(.*?)(?=###|\z)/m)
           message =  matches[0]

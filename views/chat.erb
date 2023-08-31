@@ -36,7 +36,7 @@
     <script>
       var ws = new WebSocket('ws://<%= host_name %>:<%= port %>/chat');
       let timerId = 0; 
-
+      var current_message = ""
       function keepAlive(timeout = 5000) { 
           if (ws.readyState == ws.OPEN) {  
               ws.send(JSON.stringify({type: 'ping', message: "ping"} ));  
@@ -52,14 +52,20 @@
       ws.onmessage = function(event) {
         var data = JSON.parse(event.data);
         switch (data.type) {
+          case 'stream' :
+            formatted_message = data.message;
+            current_message += formatted_message
+            document.getElementById('chat').innerHTML = marked.parse(current_message);
+            break;
           case 'message':
             formatted_message = marked.parse(data.message);
             document.getElementById('spinner').classList.add('d-none');
-            document.getElementById('chat').innerHTML = `<p><strong>${formatted_message}</p>`;
+            document.getElementById('chat').innerHTML = formatted_message;
             document.getElementById('chat_history').innerHTML += data.message;
             document.getElementById('message').value = '';
             break;
           case 'info':
+            break;
           case 'error':
             document.getElementById('chat').innerHTML += `<p class="text-danger">${data.message}</p>`;
             break;
@@ -70,6 +76,7 @@
         var message = document.getElementById('message').value;
         var context = document.getElementById('context').value;
         var n_tokens = document.getElementById('tokens').value;
+        current_message = ""
         ws.send(JSON.stringify({type: 'message', user: 'username', message: message, n_predict: n_tokens, context: context}));
 
         document.getElementById('spinner').classList.remove('d-none');
